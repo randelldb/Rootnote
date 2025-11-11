@@ -12,10 +12,10 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   const app = Fastify({
     logger: options.logger ?? true,
   });
-
+  
   app.register(cors, { origin: true });
   app.register(registerHealthRoutes, { prefix: '/api' });
   app.register(registerPlantRoutes, { prefix: '/api' });
-
+  
   return app;
 }
