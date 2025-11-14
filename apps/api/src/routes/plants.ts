@@ -1,24 +1,29 @@
 import { type FastifyInstance } from "fastify";
 import { z } from "zod";
 import db from "../db.js";
-import { PlantSummary } from "@rootnote/types";
-import { da } from "zod/locales";
+import { PlantSummary, PlantDetail } from "@rootnote/types";
 
-const createPlantSchema = z.object({
-  commonName: z.string().min(1),
-  variety: z.string().optional(),
-  cultivar: z.string().optional(),
-  notes: z.string().optional(),
-  lastWateredOn: z.string().optional(),
-});
-
-const updatePlantSchema = z.object({
+const basePlantSchema = z.object({
   commonName: z.string().min(1).optional(),
   variety: z.string().optional(),
   cultivar: z.string().optional(),
   notes: z.string().optional(),
   lastWateredOn: z.string().optional(),
+  seededDate: z.string().optional(),
+  sproutedDate: z.string().optional(),
+  transplantedDate: z.string().optional(),
+  firstFlowerDate: z.string().optional(),
+  firstFruitDate: z.string().optional(),
+  lastPrunedDate: z.string().optional(),
+  lastFertilizedDate: z.string().optional(),
+  lastHarvestedDate: z.string().optional(),
 });
+
+const createPlantSchema = basePlantSchema.extend({
+  commonName: z.string().min(1),
+});
+
+const updatePlantSchema = basePlantSchema;
 
 export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
   app.get("/plants", async () => {
@@ -27,6 +32,28 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
 
     return GetPlants;
   });
+
+  app.get<{ Params: { id: string } }>(
+    "/plants/:id",
+    async (request, response) => {
+      const { id } = request.params;
+
+      try {
+        const getPlantById = db.prepare<[string], PlantDetail>(
+          "SELECT * FROM plants WHERE id = ?",
+        );
+        const plant = getPlantById.get(id);
+
+        if (!plant) {
+          return response.status(404).send({ message: "Plant not found" });
+        }
+
+        return response.status(200).send(plant);
+      } catch (error) {
+        return response.status(400).send(error);
+      }
+    },
+  );
 
   app.post("/plants", async (request, response) => {
     const data = request.body;
@@ -37,22 +64,25 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
       return response.status(400).send(error);
     }
 
+    const columns = Object.keys(validateData).join(", ");
+
+    const placeholders = Object.keys(validateData)
+      .map(() => "?")
+      .join(", ");
+
     const createPlantQuery = db.prepare(
-      "INSERT INTO plants (commonName, variety, cultivar, notes, lastWateredOn) VALUES (?, ?, ?, ?, ?)"
+      `INSERT INTO plants (${columns}) VALUES (${placeholders})`,
     );
 
-    const createPlant = createPlantQuery.run(
-      validateData.commonName,
-      validateData.variety,
-      validateData.cultivar,
-      validateData.notes,
-      validateData.lastWateredOn
+    const values = Object.values(validateData);
+    const createPlant = createPlantQuery.run(...values);
+
+    const getPlantById = db.prepare<[number], PlantDetail>(
+      "SELECT * FROM plants WHERE id = ?",
     );
+    const plant = getPlantById.get(Number(createPlant.lastInsertRowid));
 
-    const getPlantById = db.prepare("SELECT * FROM plants WHERE id = ?");
-    const plant = getPlantById.get(createPlant["lastInsertRowid"]);
-
-    return response.status(200).send(plant);
+    return response.status(201).send(plant);
   });
 
   app.patch<{
@@ -73,7 +103,7 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
     }
 
     // check if request is not empty
-    if (Object.keys(validateData).length == 0) {
+    if (Object.keys(validateData).length === 0) {
       return response.status(400).send("No fields to update");
     }
 
@@ -86,15 +116,25 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
 
     try {
       const updatePlantQuery = db.prepare(
-        `UPDATE plants SET ${setClause} WHERE id = ?`
+        `UPDATE plants SET ${setClause} WHERE id = ?`,
       );
 
       updatePlant = updatePlantQuery.run(...values);
+
+      // Fetch the updated plant to return
+      const getPlantById = db.prepare<[string], PlantDetail>(
+        "SELECT * FROM plants WHERE id = ?",
+      );
+      const plant = getPlantById.get(id);
+
+      if (!plant) {
+        return response.status(404).send({ message: "Plant not found" });
+      }
+
+      return response.status(200).send(plant);
     } catch (error) {
       return response.status(400).send(error);
     }
-
-    return response.status(200).send(updatePlant);
   });
 
   app.delete<{ Params: { id: string } }>(
@@ -110,6 +150,6 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
       }
 
       return response.status(200).send(deletePlant);
-    }
+    },
   );
 }

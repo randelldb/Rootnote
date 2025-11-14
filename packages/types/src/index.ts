@@ -1,1 +1,1 @@
-export type { PlantSummary } from './plants.js';
+export type { PlantSummary, PlantDetail } from "./plants.js";

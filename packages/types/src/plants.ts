@@ -6,3 +6,14 @@ export interface PlantSummary {
   notes?: string;
   lastWateredOn?: string;
 }
+
+export interface PlantDetail extends PlantSummary{
+  seededDate?: string,
+  sproutedDate?: string,
+  transplantedDate?: string,
+  firstFlowerDate?: string,
+  firstFruitDate?: string,
+  lastPrunedDate?: string,
+  lastFertilizedDate?: string,
+  lastHarvestedDate?: string,
+}

@@ -1,6 +1,6 @@
-import Database from 'better-sqlite3';
+import Database from "better-sqlite3";
 
-const db = new Database('rootnote.db');
+const db = new Database("rootnote.db");
 
 // Create the plants table if it doesn't exist
 db.exec(`
@@ -10,7 +10,15 @@ db.exec(`
     variety TEXT,
     cultivar TEXT,
     notes TEXT,
-    lastWateredOn TEXT
+    lastWateredOn TEXT,
+    seededDate TEXT,
+    sproutedDate TEXT,
+    transplantedDate TEXT,
+    firstFlowerDate TEXT,
+    firstFruitDate TEXT,
+    lastPrunedDate TEXT,
+    lastFertilizedDate TEXT,
+    lastHarvestedDate TEXT
   )
 `);
 
