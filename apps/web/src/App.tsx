@@ -6,7 +6,7 @@ import { Dashboard } from "./pages/Dashboard";
 function App() {
   return (
     <BrowserRouter>
-      <div className="container">
+      <div className="flex flex-col w-3/4 min-h-screen mx-auto justify-start">
         <Header />
         <Routes>
           <Route path="/" element={<Dashboard />} />
