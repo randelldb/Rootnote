@@ -9,7 +9,7 @@ import {
 import {Label} from "@/components/ui/label.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 
-export function AddPlantForm({onPlantAdded}:{onPlantAdded: () => void}) {
+export function AddPlantForm({onPlantAdded}: { onPlantAdded: () => void }) {
     const [commonName, setCommonName] = useState("");
     const [variety, setVariety] = useState("");
     const [cultivar, setCultivar] = useState("");

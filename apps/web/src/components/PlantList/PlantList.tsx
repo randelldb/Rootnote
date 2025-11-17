@@ -8,7 +8,7 @@ export function PlantList(
         plants,
         error,
         loading
-    }:{
+    }: {
         plants: PlantSummary[],
         loading: boolean,
         error: string
@@ -18,7 +18,7 @@ export function PlantList(
     if (error) return <p>Error</p>;
     if (plants.length === 0) return <p>No plants found.</p>;
 
-console.log("plants found", plants);
+    console.log("plants found", plants);
 
     return (
         <Card className="w-full max-w-sm">
@@ -27,7 +27,7 @@ console.log("plants found", plants);
             </CardHeader>
             <CardContent>
 
-                <DataTable columns={columns} data={plants} />
+                <DataTable columns={columns} data={plants}/>
 
             </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 import type {ColumnDef} from "@tanstack/react-table";
 
-export type Plant ={
+export type Plant = {
     commonName: string;
 }
 
