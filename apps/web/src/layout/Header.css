@@ -1,0 +1,11 @@
+#main-header {
+  padding: 1rem 2rem;
+  color: #778873;
+}
+
+#main-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+

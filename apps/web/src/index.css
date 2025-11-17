@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+:root {
+  --background-light: #f1f3e0;
+  --prime-dark: #778873;
+}
+
+body {
+  background-color: var(--background-light);
+}
+
+.container {
+  margin: auto;
+  width: 700px;
+}
+
+.card {
+  width: 50%;
+  height: auto;
+  border-radius: 15px;
+  background-color: var(--prime-dark);
+}
