@@ -1,5 +1,7 @@
-import { type FastifyInstance } from 'fastify';
+import { type FastifyInstance } from "fastify";
 
-export async function registerHealthRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/health', async () => ({ status: 'ok' }));
+export async function registerHealthRoutes(
+  app: FastifyInstance
+): Promise<void> {
+  app.get("/health", async () => ({ status: "ok" }));
 }

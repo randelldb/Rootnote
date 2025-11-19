@@ -40,7 +40,7 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
 
       try {
         const getPlantById = db.prepare<[string], PlantDetail>(
-          "SELECT * FROM plants WHERE id = ?",
+          "SELECT * FROM plants WHERE id = ?"
         );
         const plant = getPlantById.get(id);
 
@@ -52,7 +52,7 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
       } catch (error) {
         return response.status(400).send(error);
       }
-    },
+    }
   );
 
   app.post("/plants", async (request, response) => {
@@ -71,14 +71,14 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
       .join(", ");
 
     const createPlantQuery = db.prepare(
-      `INSERT INTO plants (${columns}) VALUES (${placeholders})`,
+      `INSERT INTO plants (${columns}) VALUES (${placeholders})`
     );
 
     const values = Object.values(validateData);
     const createPlant = createPlantQuery.run(...values);
 
     const getPlantById = db.prepare<[number], PlantDetail>(
-      "SELECT * FROM plants WHERE id = ?",
+      "SELECT * FROM plants WHERE id = ?"
     );
     const plant = getPlantById.get(Number(createPlant.lastInsertRowid));
 
@@ -116,14 +116,14 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
 
     try {
       const updatePlantQuery = db.prepare(
-        `UPDATE plants SET ${setClause} WHERE id = ?`,
+        `UPDATE plants SET ${setClause} WHERE id = ?`
       );
 
       updatePlant = updatePlantQuery.run(...values);
 
       // Fetch the updated plant to return
       const getPlantById = db.prepare<[string], PlantDetail>(
-        "SELECT * FROM plants WHERE id = ?",
+        "SELECT * FROM plants WHERE id = ?"
       );
       const plant = getPlantById.get(id);
 
@@ -150,6 +150,6 @@ export async function registerPlantRoutes(app: FastifyInstance): Promise<void> {
       }
 
       return response.status(200).send(deletePlant);
-    },
+    }
   );
 }
