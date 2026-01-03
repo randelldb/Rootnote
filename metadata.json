@@ -1,0 +1,5 @@
+{
+  "name": "RootNote - Smart Crop Tracker",
+  "description": "A professional-grade mobile-optimized crop tracking application for farmers and gardeners to manage planting cycles and harvest schedules with AI-powered insights.",
+  "requestFramePermissions": ["camera"]
+}
