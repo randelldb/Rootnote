@@ -42,16 +42,15 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # Copy backend package manifest only
 COPY apps/backend/package.json ./
 
-# Install production dependencies (NO npm ci here)
+# IMPORTANT: do NOT use npm ci here (no lockfile in this dir)
 RUN npm install --omit=dev --no-audit --no-fund
 
-# Copy compiled backend from builder
+# Copy compiled output
 COPY --from=builder /repo/apps/backend/dist ./dist
 
-# Create SQLite data directory
+# SQLite data directory
 RUN mkdir -p /data && chown -R appuser:appuser /data /app
 
-# Runtime environment
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
@@ -61,5 +60,4 @@ USER appuser
 
 EXPOSE 3000
 
-# Start Fastify directly
 CMD ["node", "dist/index.js"]
