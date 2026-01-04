@@ -1,57 +1,65 @@
-# Build stage
-FROM node:20-bookworm AS builder
+# =========================
+# Build stage (TypeScript)
+# =========================
+FROM node:20-bookworm-slim AS builder
 
-# Install build dependencies for better-sqlite3
+# Native build deps for better-sqlite3
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# IMPORTANT: work from repo root (npm workspaces)
+WORKDIR /repo
 
-# Copy package files
-COPY package*.json ./
+# Copy root dependency manifests
+COPY package.json package-lock.json ./
 
-# Install all dependencies (including dev dependencies for build)
+# Copy backend workspace manifest
+COPY apps/backend/package.json apps/backend/package.json
+
+# Install ALL deps (dev deps needed for tsc)
 RUN npm ci
 
-# Copy source code
+# Copy full repository
 COPY . .
 
-# Build TypeScript
-RUN npm run build
+# Build backend workspace (TypeScript → dist/)
+RUN npm run build --workspace=apps/backend
 
-# Production stage
+
+# =========================
+# Runtime stage (production)
+# =========================
 FROM node:20-bookworm-slim
-
-# Install runtime dependencies for better-sqlite3
-RUN apt-get update && apt-get install -y \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package manifest only
+COPY apps/backend/package.json ./
 
 # Install production dependencies only
 RUN npm ci --omit=dev
 
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
+# Copy compiled backend from builder
+COPY --from=builder /repo/apps/backend/dist ./dist
 
-# Create data directory and set permissions
-RUN mkdir -p data && chown -R appuser:appuser /app
+# Create SQLite data directory
+RUN mkdir -p /data && chown -R appuser:appuser /data /app
 
-# Switch to non-root user
+# Runtime environment
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
+ENV DB_PATH=/data/rootnote.db
+
 USER appuser
 
-# Expose port
 EXPOSE 3000
 
-# Start application
-CMD ["npm", "start"]
+# Start Fastify directly (not via npm)
+CMD ["node", "dist/index.js"]
