@@ -10,10 +10,10 @@ RUN apt-get update && apt-get install -y \
     g++ \
  && rm -rf /var/lib/apt/lists/*
 
-# IMPORTANT: work from repo root (npm workspaces)
+# Work from repo root (npm workspaces)
 WORKDIR /repo
 
-# Copy root dependency manifests
+# Copy root manifests
 COPY package.json package-lock.json ./
 
 # Copy backend workspace manifest
@@ -42,8 +42,8 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # Copy backend package manifest only
 COPY apps/backend/package.json ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev
+# Install production dependencies (NO npm ci here)
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy compiled backend from builder
 COPY --from=builder /repo/apps/backend/dist ./dist
@@ -61,5 +61,5 @@ USER appuser
 
 EXPOSE 3000
 
-# Start Fastify directly (not via npm)
+# Start Fastify directly
 CMD ["node", "dist/index.js"]
