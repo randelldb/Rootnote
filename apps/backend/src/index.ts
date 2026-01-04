@@ -1,9 +1,11 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import { cropsRoutes } from './routes/crops.js';
 import { profileRoutes } from './routes/profile.js';
 import { settingsRoutes } from './routes/settings.js';
 import cropLogsRoutes from './routes/cropLogs.js';
+import authRoutes from './routes/auth.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -20,12 +22,16 @@ await fastify.register(cors, {
   credentials: true,
 });
 
+// Register cookie plugin
+await fastify.register(cookie);
+
 // Health check
 fastify.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
 });
 
 // Register routes
+await fastify.register(authRoutes, { prefix: '/api/auth' });
 await fastify.register(cropsRoutes, { prefix: '/api' });
 await fastify.register(profileRoutes, { prefix: '/api' });
 await fastify.register(settingsRoutes, { prefix: '/api' });

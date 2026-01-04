@@ -4,6 +4,7 @@ import { toast, Toaster } from 'sonner';
 import Dashboard from './components/Dashboard';
 import CropManager from './components/CropManager';
 import Settings from './components/Settings';
+import Login from './components/Login';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileNav } from './components/layout/MobileNav';
 import { MobileHeader, DesktopHeader } from './components/layout/Header';
@@ -13,9 +14,32 @@ import { MilestonesModal } from './components/modals/MilestonesModal';
 import { useCropOperations } from './hooks/useCropOperations';
 import { useCropLogs } from './hooks/useCropLogs';
 import { useCropMilestones } from './hooks/useCropMilestones';
+import { useAuth } from './hooks/useAuth';
 import { Tab, Crop } from './types';
 
 const App: React.FC = () => {
+  const { isAuthenticated, loading, checkAuth } = useAuth();
+
+  // Show login screen if not authenticated
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4E7C4F] mx-auto"></div>
+          <p className="mt-4 text-slate-500 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={checkAuth} />;
+  }
+
+  return <AuthenticatedApp />;
+};
+
+const AuthenticatedApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCrop, setEditingCrop] = useState<Crop | null>(null);

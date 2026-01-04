@@ -3,6 +3,8 @@ import { mkdir } from 'fs/promises';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
+import { randomUUID } from 'crypto';
+import { hashPassword } from '../utils/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -141,6 +143,32 @@ async function migrate() {
     END;
   `);
 
+  // Create users table for authentication
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL,
+      name TEXT NOT NULL,
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+
+  // Create index on email for faster lookups
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+  `);
+
+  // Create trigger to update updatedAt for users
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS update_users_timestamp 
+    AFTER UPDATE ON users
+    BEGIN
+      UPDATE users SET updatedAt = datetime('now') WHERE id = NEW.id;
+    END;
+  `);
+
   // Create crop_logs table
   db.exec(`
     CREATE TABLE IF NOT EXISTS crop_logs (
@@ -200,6 +228,26 @@ async function migrate() {
     ).run('default-settings-id', userId, 1, 3);
 
     console.log('✓ Seeded default user profile and settings');
+  }
+
+  // Seed admin user if not exists
+  const adminCount = db
+    .prepare('SELECT COUNT(*) as count FROM users WHERE email = ?')
+    .get('admin') as {
+    count: number;
+  };
+  if (adminCount.count === 0) {
+    const adminId = randomUUID();
+    const hashedPassword = await hashPassword('admin');
+
+    db.prepare(`INSERT INTO users (id, email, password, name) VALUES (?, ?, ?, ?)`).run(
+      adminId,
+      'admin',
+      hashedPassword,
+      'Administrator'
+    );
+
+    console.log('✓ Seeded admin user (email: admin, password: admin)');
   }
 
   console.log('✅ Migrations completed successfully!');

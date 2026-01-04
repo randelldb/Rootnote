@@ -2,10 +2,11 @@ import { FastifyInstance } from 'fastify';
 import { randomUUID } from 'crypto';
 import db from '../db/database.js';
 import type { Crop, CreateCropInput, UpdateCropInput } from '../types/index.js';
+import { authenticate } from '../middleware/auth.js';
 
 export async function cropsRoutes(fastify: FastifyInstance) {
   // Get all crops
-  fastify.get('/crops', async (request, reply) => {
+  fastify.get('/crops', { preHandler: authenticate }, async (request, reply) => {
     try {
       const crops = db.prepare('SELECT * FROM crops ORDER BY createdAt DESC').all();
       return { data: crops };
@@ -16,100 +17,109 @@ export async function cropsRoutes(fastify: FastifyInstance) {
   });
 
   // Get single crop
-  fastify.get<{ Params: { id: string } }>('/crops/:id', async (request, reply) => {
-    try {
-      const { id } = request.params;
-      const crop = db.prepare('SELECT * FROM crops WHERE id = ?').get(id);
+  fastify.get<{ Params: { id: string } }>(
+    '/crops/:id',
+    { preHandler: authenticate },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        const crop = db.prepare('SELECT * FROM crops WHERE id = ?').get(id);
 
-      if (!crop) {
-        return reply.code(404).send({ error: 'Crop not found' });
+        if (!crop) {
+          return reply.code(404).send({ error: 'Crop not found' });
+        }
+
+        return { data: crop };
+      } catch (error) {
+        fastify.log.error(error);
+        reply.code(500).send({ error: 'Failed to fetch crop' });
       }
-
-      return { data: crop };
-    } catch (error) {
-      fastify.log.error(error);
-      reply.code(500).send({ error: 'Failed to fetch crop' });
     }
-  });
+  );
 
   // Create crop
-  fastify.post<{ Body: CreateCropInput }>('/crops', async (request, reply) => {
-    try {
-      const {
-        name,
-        species,
-        plantingDate,
-        expectedHarvestDate,
-        pruneDate,
-        metadata,
-        status,
-        color,
-        cropType,
-        cropYear,
-      } = request.body;
+  fastify.post<{ Body: CreateCropInput }>(
+    '/crops',
+    { preHandler: authenticate },
+    async (request, reply) => {
+      try {
+        const {
+          name,
+          species,
+          plantingDate,
+          expectedHarvestDate,
+          pruneDate,
+          metadata,
+          status,
+          color,
+          cropType,
+          cropYear,
+        } = request.body;
 
-      // Validation
-      if (!name || typeof name !== 'string' || name.trim().length === 0) {
-        return reply.code(400).send({ error: 'Name is required and must be a non-empty string' });
-      }
-      if (!species || typeof species !== 'string' || species.trim().length === 0) {
-        return reply
-          .code(400)
-          .send({ error: 'Species is required and must be a non-empty string' });
-      }
-      if (!plantingDate || !/^(0[1-9]|1[0-2])$/.test(plantingDate)) {
-        return reply.code(400).send({ error: 'Planting date must be in MM format (01-12)' });
-      }
-      if (!expectedHarvestDate || !/^(0[1-9]|1[0-2])$/.test(expectedHarvestDate)) {
-        return reply
-          .code(400)
-          .send({ error: 'Expected harvest date must be in MM format (01-12)' });
-      }
-      if (pruneDate && !/^(0[1-9]|1[0-2])$/.test(pruneDate)) {
-        return reply.code(400).send({ error: 'Prune date must be in MM format (01-12)' });
-      }
-      if (status && !['Planned', 'Growing', 'Harvested'].includes(status)) {
-        return reply
-          .code(400)
-          .send({ error: 'Status must be one of: Planned, Growing, Harvested' });
-      }
+        // Validation
+        if (!name || typeof name !== 'string' || name.trim().length === 0) {
+          return reply.code(400).send({ error: 'Name is required and must be a non-empty string' });
+        }
+        if (!species || typeof species !== 'string' || species.trim().length === 0) {
+          return reply
+            .code(400)
+            .send({ error: 'Species is required and must be a non-empty string' });
+        }
+        if (!plantingDate || !/^(0[1-9]|1[0-2])$/.test(plantingDate)) {
+          return reply.code(400).send({ error: 'Planting date must be in MM format (01-12)' });
+        }
+        if (!expectedHarvestDate || !/^(0[1-9]|1[0-2])$/.test(expectedHarvestDate)) {
+          return reply
+            .code(400)
+            .send({ error: 'Expected harvest date must be in MM format (01-12)' });
+        }
+        if (pruneDate && !/^(0[1-9]|1[0-2])$/.test(pruneDate)) {
+          return reply.code(400).send({ error: 'Prune date must be in MM format (01-12)' });
+        }
+        if (status && !['Planned', 'Growing', 'Harvested'].includes(status)) {
+          return reply
+            .code(400)
+            .send({ error: 'Status must be one of: Planned, Growing, Harvested' });
+        }
 
-      const id = randomUUID();
-      const now = new Date().toISOString();
+        const id = randomUUID();
+        const now = new Date().toISOString();
 
-      const stmt = db.prepare(`
+        const stmt = db.prepare(`
         INSERT INTO crops (id, name, species, plantingDate, expectedHarvestDate, pruneDate, metadata, status, color, cropType, cropYear, createdAt, updatedAt)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
-      stmt.run(
-        id,
-        name,
-        species,
-        plantingDate,
-        expectedHarvestDate,
-        pruneDate || null,
-        metadata || null,
-        status,
-        color,
-        cropType,
-        cropYear,
-        now,
-        now
-      );
+        stmt.run(
+          id,
+          name,
+          species,
+          plantingDate,
+          expectedHarvestDate,
+          pruneDate || null,
+          metadata || null,
+          status,
+          color,
+          cropType,
+          cropYear,
+          now,
+          now
+        );
 
-      const crop = db.prepare('SELECT * FROM crops WHERE id = ?').get(id);
+        const crop = db.prepare('SELECT * FROM crops WHERE id = ?').get(id);
 
-      return reply.code(201).send({ data: crop });
-    } catch (error) {
-      fastify.log.error(error);
-      reply.code(500).send({ error: 'Failed to create crop' });
+        return reply.code(201).send({ data: crop });
+      } catch (error) {
+        fastify.log.error(error);
+        reply.code(500).send({ error: 'Failed to create crop' });
+      }
     }
-  });
+  );
 
   // Update crop
   fastify.patch<{ Params: { id: string }; Body: UpdateCropInput }>(
     '/crops/:id',
+    { preHandler: authenticate },
     async (request, reply) => {
       try {
         const { id } = request.params;
@@ -184,21 +194,25 @@ export async function cropsRoutes(fastify: FastifyInstance) {
   );
 
   // Delete crop
-  fastify.delete<{ Params: { id: string } }>('/crops/:id', async (request, reply) => {
-    try {
-      const { id } = request.params;
+  fastify.delete<{ Params: { id: string } }>(
+    '/crops/:id',
+    { preHandler: authenticate },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
 
-      const stmt = db.prepare('DELETE FROM crops WHERE id = ?');
-      const result = stmt.run(id);
+        const stmt = db.prepare('DELETE FROM crops WHERE id = ?');
+        const result = stmt.run(id);
 
-      if (result.changes === 0) {
-        return reply.code(404).send({ error: 'Crop not found' });
+        if (result.changes === 0) {
+          return reply.code(404).send({ error: 'Crop not found' });
+        }
+
+        return reply.code(204).send();
+      } catch (error) {
+        fastify.log.error(error);
+        reply.code(500).send({ error: 'Failed to delete crop' });
       }
-
-      return reply.code(204).send();
-    } catch (error) {
-      fastify.log.error(error);
-      reply.code(500).send({ error: 'Failed to delete crop' });
     }
-  });
+  );
 }

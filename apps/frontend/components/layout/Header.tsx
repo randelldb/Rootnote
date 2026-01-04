@@ -1,7 +1,10 @@
 import React from 'react';
+import { LogOut } from 'lucide-react';
 import LogoSvg from '@/assets/logo.svg';
+import { useAuth } from '../../hooks/useAuth';
 
 export const MobileHeader: React.FC = () => {
+  const { logout } = useAuth();
   return (
     <header className="lg:hidden px-6 pt-8 pb-4 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
       <div className="flex items-center gap-3">
@@ -15,14 +18,31 @@ export const MobileHeader: React.FC = () => {
           </p>
         </div>
       </div>
+      <button
+        onClick={logout}
+        className="p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors border border-slate-100"
+        title="Logout"
+      >
+        <LogOut size={20} />
+      </button>
     </header>
   );
 };
 
 export const DesktopHeader: React.FC = () => {
+  const { logout } = useAuth();
+
   return (
     <header className="hidden lg:flex px-10 py-6 bg-white border-b border-slate-100 items-center justify-end">
-      <div className="flex items-center gap-4"></div>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors border border-slate-100 font-medium text-sm"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
+      </div>
     </header>
   );
 };
