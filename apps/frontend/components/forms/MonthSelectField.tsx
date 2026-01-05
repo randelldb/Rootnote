@@ -37,7 +37,7 @@ export const MonthSelectField: React.FC<MonthSelectFieldProps> = ({
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-sm font-bold appearance-none cursor-pointer"
+        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-xs font-bold appearance-none cursor-pointer"
       >
         <option value="">Select month...</option>
         {months.map((month) => (

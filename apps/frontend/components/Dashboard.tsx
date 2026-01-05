@@ -72,8 +72,8 @@ const Dashboard: React.FC<DashboardProps> = ({ crops, onNavigateToCrops }) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20 lg:pb-0">
       <header className="mb-2">
-        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Growth Overview</h1>
-        <p className="text-slate-500 font-medium">
+        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Growth Overview</h1>
+        <p className="text-slate-500 font-medium text-sm">
           Monitoring {crops.length} active biological logs.
         </p>
       </header>
@@ -82,7 +82,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crops, onNavigateToCrops }) => {
         {/* Schedule Column */}
         <section className="lg:col-span-1 space-y-4">
           <div className="flex justify-between items-center px-1">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <h2 className="text-md font-bold text-slate-800 flex items-center gap-2">
               <Clock className="text-[#4E7C4F]" size={20} />
               Schedule
             </h2>
@@ -112,7 +112,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crops, onNavigateToCrops }) => {
         {/* Recently Added Column */}
         <section className="lg:col-span-2 space-y-4">
           <div className="flex justify-between items-center px-1">
-            <h2 className="text-lg font-bold text-slate-800">Fresh Registrations</h2>
+            <h2 className="text-md font-bold text-slate-800">Fresh Registrations</h2>
             <button
               onClick={onNavigateToCrops}
               className="text-[10px] font-black text-[#4E7C4F] uppercase hover:underline"

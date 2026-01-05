@@ -38,7 +38,7 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-lg rounded-[40px] p-8 md:p-10 animate-in zoom-in-95 duration-200 shadow-2xl">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-[#4E7C4F]">
+          <h2 className="text-xl font-bold text-[#4E7C4F]">
             {editingCrop ? 'Edit Plant' : 'Register Plant'}
           </h2>
           <button
@@ -109,7 +109,7 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
                   })
                 }
                 required
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-sm font-bold appearance-none cursor-pointer"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-xs font-bold appearance-none cursor-pointer"
               >
                 <option value="annual">Annual</option>
                 <option value="permanent">Permanent</option>
@@ -127,7 +127,7 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
                   onFormDataChange({ ...formData, cropYear: parseInt(e.target.value) })
                 }
                 required
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-sm font-bold appearance-none cursor-pointer"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[18px] outline-none focus:ring-2 focus:ring-[#4E7C4F] focus:bg-white transition-all text-xs font-bold appearance-none cursor-pointer"
               >
                 {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(
                   (year) => (
@@ -144,7 +144,7 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-4 bg-[#4E7C4F] text-white font-bold rounded-[22px] hover:bg-[#3d633e] transition-all mt-4 shadow-xl shadow-[#4E7C4F]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full text-md py-4 bg-[#4E7C4F] text-white font-bold rounded-[22px] hover:bg-[#3d633e] transition-all mt-4 shadow-xl shadow-[#4E7C4F]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {submitting && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
