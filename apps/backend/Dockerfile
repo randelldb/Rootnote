@@ -1,63 +1,62 @@
-# =========================
-# Build stage (TypeScript)
-# =========================
-FROM node:20-bookworm-slim AS builder
+# Build stage
+FROM node:20-bookworm AS builder
 
-# Native build deps for better-sqlite3
+# Install build dependencies for better-sqlite3
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Work from repo root (npm workspaces)
-WORKDIR /repo
+WORKDIR /app
 
-# Copy root manifests
-COPY package.json package-lock.json ./
+# Copy root package files for workspace setup
+COPY package*.json ./
+COPY apps/backend/package*.json ./apps/backend/
 
-# Copy backend workspace manifest
-COPY apps/backend/package.json apps/backend/package.json
-
-# Install ALL deps (dev deps needed for tsc)
+# Install all dependencies (including dev dependencies for build)
 RUN npm ci
 
-# Copy full repository
-COPY . .
+# Copy source code from apps/backend
+COPY apps/backend/. ./apps/backend/
 
-# Build backend workspace (TypeScript → dist/)
+# Build TypeScript
 RUN npm run build --workspace=apps/backend
 
-
-# =========================
-# Runtime stage (production)
-# =========================
+# Production stage
 FROM node:20-bookworm-slim
+
+# Install runtime dependencies for better-sqlite3
+RUN apt-get update && apt-get install -y \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copy backend package manifest only
-COPY apps/backend/package.json ./
+# Copy root package files for workspace setup
+COPY package*.json ./
+COPY apps/backend/package*.json ./apps/backend/
 
-# IMPORTANT: do NOT use npm ci here (no lockfile in this dir)
-RUN npm install --omit=dev --no-audit --no-fund
+# Install production dependencies only
+RUN npm ci --omit=dev
 
-# Copy compiled output
-COPY --from=builder /repo/apps/backend/dist ./dist
+# Copy built application from builder
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 
-# SQLite data directory
-RUN mkdir -p /data && chown -R appuser:appuser /data /app
+# Create data directory and set permissions
+RUN mkdir -p apps/backend/data && chown -R appuser:appuser /app
 
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOST=0.0.0.0
-ENV DB_PATH=/data/rootnote.db
-
+# Switch to non-root user
 USER appuser
 
+# Expose port
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+# Set working directory to backend app
+WORKDIR /app/apps/backend
+
+# Run migrations then start application
+CMD ["sh", "-c", "node dist/db/migrate.js && npm start"]

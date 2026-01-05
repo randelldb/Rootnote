@@ -13,7 +13,7 @@ export function useAuth() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/me', {
+      const response = await fetch('/api/auth/me', {
         credentials: 'include',
       });
 
@@ -35,7 +35,7 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      await fetch('http://localhost:3000/api/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });

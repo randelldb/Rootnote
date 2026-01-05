@@ -33,14 +33,18 @@ export interface UpdateCropInput {
 
 export const cropService = {
   async getAll(): Promise<Crop[]> {
-    const response = await fetch(`${API_URL}/crops`);
+    const response = await fetch(`${API_URL}/crops`, {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch crops');
     const data = await response.json();
     return data.data;
   },
 
   async getById(id: string): Promise<Crop> {
-    const response = await fetch(`${API_URL}/crops/${id}`);
+    const response = await fetch(`${API_URL}/crops/${id}`, {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch crop');
     const data = await response.json();
     return data.data;
@@ -50,6 +54,7 @@ export const cropService = {
     const response = await fetch(`${API_URL}/crops`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(crop),
     });
     if (!response.ok) throw new Error('Failed to create crop');
@@ -61,6 +66,7 @@ export const cropService = {
     const response = await fetch(`${API_URL}/crops/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(updates),
     });
     if (!response.ok) throw new Error('Failed to update crop');
@@ -71,6 +77,7 @@ export const cropService = {
   async delete(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/crops/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (!response.ok) throw new Error('Failed to delete crop');
   },
@@ -134,13 +141,17 @@ export interface UpdateCropLogInput {
 
 export const cropLogService = {
   async getByCropId(cropId: string): Promise<CropLog[]> {
-    const response = await fetch(`${API_URL}/crops/${cropId}/logs`);
+    const response = await fetch(`${API_URL}/crops/${cropId}/logs`, {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch crop logs');
     return response.json();
   },
 
   async getById(id: string): Promise<CropLog> {
-    const response = await fetch(`${API_URL}/crop-logs/${id}`);
+    const response = await fetch(`${API_URL}/crop-logs/${id}`, {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch crop log');
     return response.json();
   },
@@ -149,6 +160,7 @@ export const cropLogService = {
     const response = await fetch(`${API_URL}/crop-logs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(log),
     });
     if (!response.ok) throw new Error('Failed to create crop log');
@@ -159,6 +171,7 @@ export const cropLogService = {
     const response = await fetch(`${API_URL}/crop-logs/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(updates),
     });
     if (!response.ok) throw new Error('Failed to update crop log');
@@ -168,6 +181,7 @@ export const cropLogService = {
   async delete(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/crop-logs/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (!response.ok) throw new Error('Failed to delete crop log');
   },
