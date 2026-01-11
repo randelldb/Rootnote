@@ -23,6 +23,7 @@ export interface Crop {
   name: string;
   species: string;
   plantingDate: string; // Format: MM (01-12, recurring annually)
+  preSownDate?: string; // Format: MM (01-12, recurring annually)
   expectedHarvestDate: string; // Format: MM (01-12, recurring annually)
   pruneDate?: string; // Format: MM (01-12, recurring annually)
   metadata?: string;
@@ -39,6 +40,7 @@ export interface CreateCropInput {
   name: string;
   species: string;
   plantingDate: string; // Format: MM (01-12, recurring annually)
+  preSownDate?: string; // Format: MM (01-12, recurring annually)
   expectedHarvestDate: string; // Format: MM (01-12, recurring annually)
   pruneDate?: string; // Format: MM (01-12, recurring annually)
   metadata?: string;
@@ -52,6 +54,7 @@ export interface UpdateCropInput {
   name?: string;
   species?: string;
   plantingDate?: string; // Format: MM (01-12, recurring annually)
+  preSownDate?: string; // Format: MM (01-12, recurring annually)
   expectedHarvestDate?: string; // Format: MM (01-12, recurring annually)
   pruneDate?: string; // Format: MM (01-12, recurring annually)
   metadata?: string;

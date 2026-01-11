@@ -61,7 +61,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    Pre-Sown
+                  </p>
+                  <p className="text-xs font-bold text-slate-800">
+                    {formatMonth(crop.preSownDate)}
+                  </p>
+                </div>
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
                     Sown

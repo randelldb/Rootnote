@@ -76,6 +76,16 @@ async function migrate() {
     }
   }
 
+  // Add preSownDate column if it doesn't exist
+  try {
+    db.exec(`ALTER TABLE crops ADD COLUMN preSownDate TEXT;`);
+    console.log('✓ Added preSownDate column to crops table');
+  } catch (error: any) {
+    if (!error.message.includes('duplicate column')) {
+      throw error;
+    }
+  }
+
   // Create index on cropType for faster filtering
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_crops_cropType ON crops(cropType);

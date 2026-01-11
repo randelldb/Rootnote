@@ -23,6 +23,7 @@ export interface Crop {
   name: string;
   species: string;
   plantingDate: string; // Format: MM (e.g., "03" for March)
+  preSownDate?: string; // Format: MM (e.g., "02" for February)
   expectedHarvestDate: string; // Format: MM (e.g., "06" for June)
   pruneDate?: string; // Format: MM (e.g., "06" for June)
   metadata?: string;

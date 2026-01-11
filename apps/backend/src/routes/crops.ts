@@ -47,6 +47,7 @@ export async function cropsRoutes(fastify: FastifyInstance) {
           name,
           species,
           plantingDate,
+          preSownDate,
           expectedHarvestDate,
           pruneDate,
           metadata,
@@ -68,6 +69,9 @@ export async function cropsRoutes(fastify: FastifyInstance) {
         if (!plantingDate || !/^(0[1-9]|1[0-2])$/.test(plantingDate)) {
           return reply.code(400).send({ error: 'Planting date must be in MM format (01-12)' });
         }
+        if (preSownDate && !/^(0[1-9]|1[0-2])$/.test(preSownDate)) {
+          return reply.code(400).send({ error: 'Pre-sown date must be in MM format (01-12)' });
+        }
         if (!expectedHarvestDate || !/^(0[1-9]|1[0-2])$/.test(expectedHarvestDate)) {
           return reply
             .code(400)
@@ -86,8 +90,8 @@ export async function cropsRoutes(fastify: FastifyInstance) {
         const now = new Date().toISOString();
 
         const stmt = db.prepare(`
-        INSERT INTO crops (id, name, species, plantingDate, expectedHarvestDate, pruneDate, metadata, status, color, cropType, cropYear, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO crops (id, name, species, plantingDate, preSownDate, expectedHarvestDate, pruneDate, metadata, status, color, cropType, cropYear, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
         stmt.run(
@@ -95,6 +99,7 @@ export async function cropsRoutes(fastify: FastifyInstance) {
           name,
           species,
           plantingDate,
+          preSownDate || null,
           expectedHarvestDate,
           pruneDate || null,
           metadata || null,
@@ -152,6 +157,13 @@ export async function cropsRoutes(fastify: FastifyInstance) {
         }
         if (updates.plantingDate !== undefined && !/^(0[1-9]|1[0-2])$/.test(updates.plantingDate)) {
           return reply.code(400).send({ error: 'Planting date must be in MM format (01-12)' });
+        }
+        if (
+          updates.preSownDate !== undefined &&
+          updates.preSownDate !== null &&
+          !/^(0[1-9]|1[0-2])$/.test(updates.preSownDate)
+        ) {
+          return reply.code(400).send({ error: 'Pre-sown date must be in MM format (01-12)' });
         }
         if (
           updates.expectedHarvestDate !== undefined &&

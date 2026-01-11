@@ -7,6 +7,7 @@ interface CropFormData {
   name: string;
   species: string;
   plantingDate: string;
+  preSownDate: string;
   expectedHarvestDate: string;
   pruneDate: string;
   cropType: 'annual' | 'permanent';
@@ -69,11 +70,19 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
 
           <div className="grid grid-cols-2 gap-6">
             <MonthSelectField
+              label="Pre-Sown Month (Optional)"
+              value={formData.preSownDate}
+              onChange={(e) => onFormDataChange({ ...formData, preSownDate: e.target.value })}
+            />
+            <MonthSelectField
               label="Sowing Month"
               value={formData.plantingDate}
               onChange={(e) => onFormDataChange({ ...formData, plantingDate: e.target.value })}
               required
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
             <MonthSelectField
               label="Expected Harvest"
               value={formData.expectedHarvestDate}
@@ -82,17 +91,11 @@ export const CropFormModal: React.FC<CropFormModalProps> = ({
               }
               required
             />
-          </div>
-
-          <div className="w-full">
             <MonthSelectField
               label="Prune Month (Optional)"
               value={formData.pruneDate}
               onChange={(e) => onFormDataChange({ ...formData, pruneDate: e.target.value })}
             />
-            <p className="text-xs text-slate-400 mt-1 ml-1">
-              For permanent crops that need pruning
-            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
